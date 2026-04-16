@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planhjelperen — Boligflippen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:        #2d5a3d;
+      --green-mid:    #4a8c62;
+      --green-light:  #e8f0ea;
+      --green-hover:  #234830;
+      --cream:        #f7f4ef;
+      --cream-dark:   #ede9e1;
+      --border:       #dedad4;
+      --text:         #1a1a18;
+      --muted:        #6b6b66;
+      --subtle:       #9a9a94;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--green);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      color: #fff;
+      font-size: 1.2rem;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+
+    .logo span {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.6);
+      display: block;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--green);
+      padding: 3.5rem 2rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0; right: 0;
+      height: 48px;
+      background: var(--cream);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.9);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      color: #fff;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+
+    .hero p {
+      color: rgba(255,255,255,0.72);
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    /* ── Steps ── */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+
+    .card-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+
+    /* ── Form elements ── */
+    .field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 500px) { .field-group { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.9rem;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.18s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.55;
+    }
+
+    /* ── Tile selector ── */
+    .tile-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 460px) { .tile-group { grid-template-columns: 1fr 1fr; } }
+
+    .tile {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s;
+      user-select: none;
+    }
+
+    .tile:hover { border-color: var(--green-mid); background: var(--green-light); }
+
+    .tile.selected {
+      border-color: var(--green);
+      background: var(--green-light);
+    }
+
+    .tile-icon { font-size: 1.6rem; margin-bottom: 6px; display: block; }
+    .tile-label { font-size: 0.82rem; font-weight: 500; color: var(--text); }
+    .tile-desc { font-size: 0.72rem; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+    /* ── Rom-tags ── */
+    .tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .tag {
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: #fff;
+      color: var(--muted);
+      user-select: none;
+    }
+
+    .tag:hover { border-color: var(--green-mid); color: var(--text); }
+    .tag.selected { border-color: var(--green); background: var(--green-light); color: var(--green); }
+
+    /* ── Slider ── */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .slider-row input[type=range] {
+      flex: 1;
+      accent-color: var(--green);
+      height: 4px;
+    }
+
+    .slider-val {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      min-width: 56px;
+      text-align: right;
+    }
+
+    /* ── CTA knapp ── */
+    .btn-primary {
+      width: 100%;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover { background: var(--green-hover); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-primary:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      color: var(--subtle);
+      cursor: pointer;
+      padding: 0.5rem 0;
+      display: block;
+      margin: 0.5rem auto 0;
+    }
+    .btn-secondary:hover { color: var(--muted); }
+
+    /* ── Loading ── */
+    #step-loading {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--cream-dark);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .loading-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* ── Rapport ── */
+    .rapport-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rapport-header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .rapport-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge-green  { background: #d1fae5; color: #065f46; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-blue   { background: #dbeafe; color: #1e40af; }
+
+    /* Score-meter */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.75rem;
+    }
+
+    @media (max-width: 460px) { .score-grid { grid-template-columns: 1fr; } }
+
+    .score-card {
+      background: var(--cream);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .score-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .score-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* AI-tekst */
+    .ai-content {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+
+    .ai-content h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--text);
+    }
+
+    .ai-content h3:first-child { margin-top: 0; }
+
+    .ai-content ul {
+      padding-left: 1.2rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .ai-content li {
+      margin-bottom: 0.4rem;
+      color: var(--muted);
+    }
+
+    .ai-content strong { color: var(--text); font-weight: 600; }
+
+    .ai-content .highlight {
+      background: var(--green-light);
+      border-left: 3px solid var(--green);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* CTA-kort */
+    .cta-card {
+      background: var(--green);
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-card-text h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+
+    .cta-card-text p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.5;
+      max-width: 360px;
+    }
+
+    .cta-card a {
+      display: inline-block;
+      background: #fff;
+      color: var(--green);
+      text-decoration: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+
+    .cta-card a:hover { opacity: 0.9; }
+
+    .disclaimer {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--subtle);
+      margin-top: 1.25rem;
+      line-height: 1.6;
+    }
+
+    /* ── Error ── */
+    .error-box {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-size: 0.88rem;
+      color: #9f1239;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="#" class="logo">
+    Boligflippen
+    <span>Planhjelperen</span>
+  </a>
+  <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;">
+    <span style="width:7px;height:7px;border-radius:50%;background:#7ee8a2;display:inline-block;box-shadow:0 0 0 2px rgba(126,232,162,0.3);"></span>
+    <span style="font-size:0.7rem;font-weight:500;color:rgba(255,255,255,0.85);letter-spacing:0.06em;text-transform:uppercase;">AI-drevet</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">Planhjelperen</div>
+  <h1>Hvilken planløsning<br>lønner seg for deg?</h1>
+  <p>Svar på noen spørsmål om leiligheten din — så analyserer vår AI hva som er optimal planløsning basert på formålet ditt.</p>
+</div>
+
+<main>
+
+  <!-- ── STEG 1: Formål ── -->
+  <div id="step-1" class="step active">
+    <div class="card">
+      <p class="card-title">Hva skal du bruke leiligheten til?</p>
+      <p class="card-sub">Dette avgjør hvilke krav og hensyn som veier tyngst i analysen.</p>
+
+      <div class="tile-group">
+        <div class="tile" data-val="selge" onclick="velgTile(this, 'formal')">
+          <span class="tile-icon">🏷️</span>
+          <div class="tile-label">Selge</div>
+          <div class="tile-desc">Renovere for størst mulig salgspris</div>
+        </div>
+        <div class="tile" data-val="leie" onclick="velgTile(this, 'formal')">
+          <span class="tile-icon">🔑</span>
+          <div class="tile-label">Leie ut</div>
+          <div class="tile-desc">Maksimere leieinntekter og redusere slitasje</div>
+        </div>
+        <div class="tile" data-val="bo" onclick="velgTile(this, 'formal')">
+          <span class="tile-icon">🏡</span>
+          <div class="tile-label">Bo selv</div>
+          <div class="tile-desc">Tilpasse til eget liv og preferanser</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="nesteSte(1)" id="btn-1" disabled>
+        Neste →
+      </button>
+    </div>
+  </div>
+
+  <!-- ── STEG 2: Leiligheten ── -->
+  <div id="step-2" class="step">
+    <div class="card">
+      <p class="card-title">Fortell om leiligheten</p>
+      <p class="card-sub">Grunnleggende info som hjelper oss vurdere muligheter og begrensninger.</p>
+
+      <div class="field-group">
+        <div class="field">
+          <label>Totalt areal (m²)</label>
+          <input type="number" id="areal" placeholder="f.eks. 65" min="20" max="400" />
+        </div>
+        <div class="field">
+          <label>Antall rom i dag</label>
+          <input type="number" id="antall-rom" placeholder="f.eks. 3" min="1" max="10" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field">
+          <label>Etasje</label>
+          <select id="etasje">
+            <option value="">Velg...</option>
+            <option value="kjeller">Kjeller / underetasje</option>
+            <option value="1">1. etasje</option>
+            <option value="2-4">2.–4. etasje</option>
+            <option value="5+">5. etasje eller høyere</option>
+            <option value="topp">Toppetasje / loft</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Byggeår (ca.)</label>
+          <input type="number" id="byggeaar" placeholder="f.eks. 1970" min="1900" max="2024" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field">
+          <label>Bydel / område</label>
+          <input type="text" id="bydel" placeholder="f.eks. Majorstuen, Oslo" />
+        </div>
+        <div class="field">
+          <label>Leilighetens form</label>
+          <select id="form">
+            <option value="">Velg...</option>
+            <option value="kvadratisk">Kvadratisk / nær kvadratisk</option>
+            <option value="avlang">Avlang / korridor</option>
+            <option value="L-form">L-form</option>
+            <option value="uregelmessig">Uregelmessig</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="nesteSte(2)">Neste →</button>
+      <button class="btn-secondary" onclick="forrigeSte(2)">← Tilbake</button>
+    </div>
+  </div>
+
+  <!-- ── STEG 3: Nåværende rom ── -->
+  <div id="step-3" class="step">
+    <div class="card">
+      <p class="card-title">Hvilke rom finnes i dag?</p>
+      <p class="card-sub">Velg alle rom som eksisterer. Vi vurderer også om planløsningen kan endres.</p>
+
+      <div class="tag-group" id="rom-tags">
+        <span class="tag" data-val="stue" onclick="toggleTag(this)">Stue</span>
+        <span class="tag" data-val="kjokken" onclick="toggleTag(this)">Kjøkken</span>
+        <span class="tag" data-val="bad" onclick="toggleTag(this)">Bad</span>
+        <span class="tag" data-val="soverom1" onclick="toggleTag(this)">Soverom 1</span>
+        <span class="tag" data-val="soverom2" onclick="toggleTag(this)">Soverom 2</span>
+        <span class="tag" data-val="soverom3" onclick="toggleTag(this)">Soverom 3</span>
+        <span class="tag" data-val="entre" onclick="toggleTag(this)">Entre</span>
+        <span class="tag" data-val="gang" onclick="toggleTag(this)">Gang</span>
+        <span class="tag" data-val="wc" onclick="toggleTag(this)">Separat WC</span>
+        <span class="tag" data-val="bod" onclick="toggleTag(this)">Bod / oppbevaring</span>
+        <span class="tag" data-val="vaskerom" onclick="toggleTag(this)">Vaskerom</span>
+        <span class="tag" data-val="kontor" onclick="toggleTag(this)">Kontor / arbeidsrom</span>
+        <span class="tag" data-val="balkong" onclick="toggleTag(this)">Balkong / terrasse</span>
+      </div>
+
+      <div class="field" style="margin-bottom: 1.5rem;">
+        <label>Noe spesielt å nevne? (valgfritt)</label>
+        <textarea id="fritekst" placeholder="F.eks. bærende vegg mellom stue og kjøkken, lav takhøyde på ett rom, vinduer kun på én side..."></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="kjorAnalyse()">Analyser planløsning →</button>
+      <button class="btn-secondary" onclick="forrigeSte(3)">← Tilbake</button>
+    </div>
+  </div>
+
+  <!-- ── LOADING ── -->
+  <div id="step-loading" class="step">
+    <div class="spinner"></div>
+    <p class="loading-text">Analyserer planløsningsmulighetene...</p>
+    <p class="loading-sub">Vi vurderer krav til vindu, romstørrelser, byggeforskrifter og markedsverdi</p>
+  </div>
+
+  <!-- ── FEIL ── -->
+  <div id="error-box" class="error-box"></div>
+
+  <!-- ── RAPPORT ── -->
+  <div id="step-rapport" class="step">
+
+    <div class="card">
+      <div class="rapport-header">
+        <h2 id="r-tittel">Planløsningsanalyse</h2>
+        <span class="rapport-badge badge-green" id="r-badge">Godt potensial</span>
+      </div>
+
+      <div class="score-grid">
+        <div class="score-card">
+          <div class="score-num" id="r-score-verdi" style="color: var(--green);">—</div>
+          <div class="score-label">Verdipotensial</div>
+        </div>
+        <div class="score-card">
+          <div class="score-num" id="r-score-krav" style="color: #1e40af;">—</div>
+          <div class="score-label">Kravoppfyllelse</div>
+        </div>
+        <div class="score-card">
+          <div class="score-num" id="r-score-kostnad" style="color: #92400e;">—</div>
+          <div class="score-label">Kostnadsrisiko</div>
+        </div>
+      </div>
+
+      <div class="ai-content" id="r-tekst">
+        <!-- Fylles av AI -->
+      </div>
+    </div>
+
+    <div class="cta-card">
+      <div class="cta-card-text">
+        <h3>Vil du ha en konkret plan?</h3>
+        <p>Analysen over er et utgangspunkt. I en samtale går vi gjennom akkurat din leilighet og lager en prioritert handlingsplan.</p>
+      </div>
+      <a href="#kontakt">Book gratis samtale</a>
+    </div>
+
+    <p class="disclaimer">Analysen er AI-generert og veiledende. Den erstatter ikke en befaring eller faglig vurdering.<br>© Boligflippen — <a href="#" style="color:var(--subtle);">boligflippen.no</a></p>
+
+    <button class="btn-secondary" onclick="startPaaNytt()" style="margin-top:1rem;">← Start på nytt</button>
+  </div>
+
+</main>
+
+<script>
+// ── State ──
+var state = {
+  formal: null,
+  areal: '',
+  antallRom: '',
+  etasje: '',
+  byggeaar: '',
+  bydel: '',
+  form: '',
+  rom: [],
+  fritekst: ''
+};
+
+// ── Tile-velger ──
+function velgTile(el, key) {
+  el.closest('.tile-group').querySelectorAll('.tile').forEach(function(t){ t.classList.remove('selected'); });
+  el.classList.add('selected');
+  state[key] = el.dataset.val;
+  var btn = document.getElementById('btn-' + el.closest('.step').id.replace('step-',''));
+  if(btn) btn.disabled = false;
+}
+
+// ── Tag-velger ──
+function toggleTag(el) {
+  el.classList.toggle('selected');
+  var val = el.dataset.val;
+  var idx = state.rom.indexOf(val);
+  if(idx > -1) state.rom.splice(idx,1);
+  else state.rom.push(val);
+}
+
+// ── Navigasjon ──
+function visStep(id) {
+  document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nesteSte(fra) {
+  if(fra === 1) { visStep('step-2'); return; }
+  if(fra === 2) { visStep('step-3'); return; }
+}
+
+function forrigeSte(fra) {
+  if(fra === 2) { visStep('step-1'); return; }
+  if(fra === 3) { visStep('step-2'); return; }
+}
+
+function startPaaNytt() {
+  state = { formal: null, areal:'', antallRom:'', etasje:'', byggeaar:'', bydel:'', form:'', rom:[], fritekst:'' };
+  document.querySelectorAll('.tile').forEach(function(t){ t.classList.remove('selected'); });
+  document.querySelectorAll('.tag').forEach(function(t){ t.classList.remove('selected'); });
+  document.getElementById('btn-1').disabled = true;
+  document.getElementById('fritekst').value = '';
+  document.getElementById('error-box').style.display = 'none';
+  visStep('step-1');
+}
+
+// ── Bygg prompt ──
+function byggPrompt() {
+  var formalTekst = { selge: 'selge leiligheten etter renovering', leie: 'leie ut leiligheten', bo: 'bo i leiligheten selv' };
+  var romListe = state.rom.length > 0 ? state.rom.join(', ') : 'ikke spesifisert';
+
+  return [
+    'Du er en ekspert på norsk eiendomsrenovering og planløsning. En bruker ønsker råd om optimal planløsning.',
+    '',
+    'BRUKERENS SITUASJON:',
+    '- Formål: ' + (formalTekst[state.formal] || state.formal),
+    '- Areal: ' + (document.getElementById('areal').value || 'ikke oppgitt') + ' m²',
+    '- Antall rom i dag: ' + (document.getElementById('antall-rom').value || 'ikke oppgitt'),
+    '- Etasje: ' + (document.getElementById('etasje').value || 'ikke oppgitt'),
+    '- Byggeår: ' + (document.getElementById('byggeaar').value || 'ikke oppgitt'),
+    '- Område: ' + (document.getElementById('bydel').value || 'ikke oppgitt'),
+    '- Leilighetens form: ' + (document.getElementById('form').value || 'ikke oppgitt'),
+    '- Eksisterende rom: ' + romListe,
+    '- Tilleggsinfo: ' + (document.getElementById('fritekst').value || 'ingen'),
+    '',
+    'GI EN KONKRET ANALYSE med følgende struktur (bruk nøyaktig disse HTML-taggene):',
+    '',
+    '<h3>Anbefalt planløsning</h3>',
+    'Beskriv konkret hvilken planløsning som er optimal for dette formålet. Vær spesifikk om antall rom, størrelser og innbyrdes plassering.',
+    '',
+    '<h3>Lovkrav og tekniske hensyn</h3>',
+    'List opp de viktigste kravene: vinduskrav (TEK17), minstestørrelser for rom, rømningsvei, ventilasjon. Vær konkret.',
+    '',
+    '<div class="highlight">Viktigste råd: [ett konkret, actionable råd som betyr mest for dette formålet]</div>',
+    '',
+    '<h3>Typiske fallgruver</h3>',
+    'List 3–4 fallgruver folk gjør ved planløsningsendringer for dette formålet. Bruk <ul><li>.</li></ul>',
+    '',
+    '<h3>Estimert verdipåvirkning</h3>',
+    'Hva kan en god planløsning bety for salgspris / leieinntekter / bokvalitet, konkret og ærlig.',
+    '',
+    'Avslutt med tre tall på separate linjer i dette formatet (disse brukes av systemet):',
+    'SCORE_VERDI: [tall 1-10]',
+    'SCORE_KRAV: [tall 1-10]',
+    'SCORE_KOSTNAD: [tall 1-10 der 10 = høy risiko]',
+    '',
+    'Skriv på norsk. Vær konkret og faglig, men forståelig for en privatperson. Ikke skriv generisk – base deg på de faktiske opplysningene gitt.'
+  ].join('\n');
+}
+
+// ── Kall Claude API ──
+async function kjorAnalyse() {
+  state.rom = [];
+  document.querySelectorAll('.tag.selected').forEach(function(t){ state.rom.push(t.dataset.val); });
+
+  visStep('step-loading');
+  document.getElementById('error-box').style.display = 'none';
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: byggPrompt() }]
+      })
+    });
+
+    if(!response.ok) throw new Error('API-feil: ' + response.status);
+
+    var data = await response.json();
+    var tekst = data.content.filter(function(b){ return b.type === 'text'; }).map(function(b){ return b.text; }).join('');
+
+    // Trekk ut scores
+    var scoreVerdi   = (tekst.match(/SCORE_VERDI:\s*(\d+)/)   || [])[1] || '7';
+    var scoreKrav    = (tekst.match(/SCORE_KRAV:\s*(\d+)/)    || [])[1] || '7';
+    var scoreKostnad = (tekst.match(/SCORE_KOSTNAD:\s*(\d+)/) || [])[1] || '5';
+
+    // Fjern score-linjene fra teksten
+    var renTekst = tekst
+      .replace(/SCORE_VERDI:\s*\d+/g, '')
+      .replace(/SCORE_KRAV:\s*\d+/g, '')
+      .replace(/SCORE_KOSTNAD:\s*\d+/g, '')
+      .trim();
+
+    // Fyll inn rapport
+    document.getElementById('r-tekst').innerHTML = renTekst;
+    document.getElementById('r-score-verdi').textContent   = scoreVerdi + '/10';
+    document.getElementById('r-score-krav').textContent    = scoreKrav  + '/10';
+    document.getElementById('r-score-kostnad').textContent = scoreKostnad + '/10';
+
+    // Badge basert på verdiscore
+    var badge = document.getElementById('r-badge');
+    var v = parseInt(scoreVerdi);
+    if(v >= 8)      { badge.textContent = 'Sterkt potensial'; badge.className = 'rapport-badge badge-green'; }
+    else if(v >= 5) { badge.textContent = 'Godt potensial';   badge.className = 'rapport-badge badge-blue'; }
+    else            { badge.textContent = 'Begrenset potensial'; badge.className = 'rapport-badge badge-yellow'; }
+
+    var formalTittel = { selge: 'Optimal for salg', leie: 'Optimal for utleie', bo: 'Optimal for eget bruk' };
+    document.getElementById('r-tittel').textContent = formalTittel[state.formal] || 'Planløsningsanalyse';
+
+    visStep('step-rapport');
+
+  } catch(err) {
+    visStep('step-3');
+    var eb = document.getElementById('error-box');
+    eb.textContent = 'Noe gikk galt under analysen. Prøv igjen om litt. (' + err.message + ')';
+    eb.style.display = 'block';
+  }
+}
+</script>
+
+</body>
+</html>
